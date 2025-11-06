@@ -1,40 +1,41 @@
-const date = document.getElementById("date");
+const dateElement = document.getElementById("date");
 const taskInput = document.getElementById("task-input");
 const addTaskBtn = document.getElementById("add-task");
 const todosList = document.getElementById("todos-list");
 const itemsLeft = document.getElementById("items-left");
 const clearCompletedBtn = document.getElementById("clear-completed");
-const emptyState = document.querySelector("empty-state");
-const filters = document.querySelectorAll("filters");
+const emptyState = document.querySelector(".empty-state");
+const filters = document.querySelectorAll(".filter");
 
 
 let todos = [];
 let currentFilter = "all";
 
 addTaskBtn.addEventListener("click", () => {
-    addTodo(taskInput.value)
+    addTodo(taskInput.value);
 })
 
 
 taskInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        addTodo(taskInput.value)
+        addTodo(taskInput.value);
     }
 })
 
-clearCompletedBtn.addEventListener("click", clearCompleted)
+clearCompletedBtn.addEventListener("click", clearCompleted);
 
 
 function addTodo (text) {
-    if (text,trim() === "") return
+    if (!text || text.trim() === "") return;
+    const trimmed = text.trim();
 
     const todo = {
         id: Date.now(),
-        text,
+        text: trimmed,
         completed: false
-    }
+    };
 
-    todos.push(todo)
+    todos.push(todo);
 
     saveTodos();
     renderTodos();
@@ -52,10 +53,9 @@ function saveTodos () {
 
 
 function  updateItemsCount () {
-    const uncompleteTodos = todo.filter(todo => !todo.completed)
-    itemsLeft.textContent = `$(uncompletedTodos.length) items(
-    uncompletedTodos.length !== 1 ? "s" : "")left`;
-
+    const uncompletedTodos = todos.filter(t => !t.completed);
+    const n = uncompletedTodos.length;
+    itemsLeft.textContent = `${n} item${n !== 1 ? 's' : ''} left`;
 }
 
 
@@ -87,46 +87,46 @@ function filterTodos (filter) {
 function renderTodos () {
     todosList.innerHTML = "";
 
-    const filteredTodos = filterTodos(currentFilter)
+    const filteredTodos = filterTodos(currentFilter);
 
     filteredTodos.forEach(todo => {
         const todoItem = document.createElement("li");
-        todoItem.classList.add("todo-item")
-        if (todo.completed) todoItem.classList.add("completed")
+        todoItem.classList.add("todo-item");
+        if (todo.completed) todoItem.classList.add("completed");
 
-        const checkboxContainer =document.createElement("label")
-        checkboxContainer.classList.add("checkbox-container")
+        const checkboxContainer =document.createElement("label");
+        checkboxContainer.classList.add("checkbox-container");
 
-        const checkbox = document.createElement("input")
-        checkbox.type = "checkbox"
-        checkbox.classList.add("todo-checkbox")
-        checkbox.checked = todo.completed
-        checkbox.addEventListener("change", () => toggleTodo(todo.id))
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("todo-checkbox");
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener("change", () => toggleTodo(todo.id));
 
 
         const checkmark = document.createElement("span");
-        checkmark.classList.add("checkmark")
+        checkmark.classList.add("checkmark");
 
-        checkboxContainer.appendChild(checkbox)
-        checkboxContainer.appendChild(checkmark)
+        checkboxContainer.appendChild(checkbox);
+        checkboxContainer.appendChild(checkmark);
 
         const todoText = document.createElement("span");
-        todoText.classList.add("todo-item-text")
-        todoText.textContent = todo.text
+        todoText.classList.add("todo-item-text");
+        todoText.textContent = todo.text;
 
 
-        const deleteBtn =  document.createElement("button");
-        deleteBtn.classList.add("delete-btn")
-        deleteBtn.innerHTML = `<i class = "fas fa-items"></i>`;
-        deleteBtn.addEventListener("click", () => deleteTodo(todo.id));
+    const deleteBtn =  document.createElement("button");
+    deleteBtn.classList.add("delete-btn");
+    deleteBtn.innerHTML = `<i class="fas fa-trash"></i>`;
+    deleteBtn.addEventListener("click", () => deleteTodo(todo.id));
 
 
-        todoItem.appendChild(checkboxContainer)
-        todoItem.appendChild(todoText)
-        todoItem.appendChild(deleteBtn)
+        todoItem.appendChild(checkboxContainer);
+        todoItem.appendChild(todoText);
+        todoItem.appendChild(deleteBtn);
 
 
-        todosList.appendChild(todoItem)
+        todosList.appendChild(todoItem);
 
     })
 
@@ -135,7 +135,7 @@ function renderTodos () {
 
 
 function deleteTodo (id) {
-    todos = todos.filter(todo => todo.id != id)
+    todos = todos.filter(todo => todo.id !== id);
     saveTodos();
     renderTodos();
 
@@ -145,16 +145,14 @@ function deleteTodo (id) {
 
 function toggleTodo (id) {
     todos = todos.map((todo) => {
-        if (todo.id === id) return(...todo, completed: !todo.completed);
-
+        if (todo.id === id) return { ...todo, completed: !todo.completed };
         return todo;
         
     })
 
     saveTodos();
     renderTodos();
-    
-} 
+}
 
 
 function clearCompleted () {
@@ -167,29 +165,26 @@ function clearCompleted () {
 
 
 function loadTodos () {
-    const storedTodos = localStorage.getItem("todos")
-    if (storedTodos) todos = JSON.parse(storedTodos)
+    const storedTodos = localStorage.getItem("todos");
+    if (storedTodos) todos = JSON.parse(storedTodos);
     renderTodos();
 
 }
 
 
-filter.forEach(filter => {
-    filter.addEventListener("click", () => {
-        setActiveFilter(filter.getAttribute("data.filter"))
-    })
-
-})
+filters.forEach(f => {
+    f.addEventListener("click", () => setActiveFilter(f.getAttribute("data-filter")));
+});
 
 
 function setActiveFilter (filter) {
-    currentFilter = filter
+    currentFilter = filter;
 
     filters.forEach(item => {
         if (item.getAttribute("data-filter") === filter) {
-            item.classList.add("active")
+            item.classList.add("active");
         } else {
-            item.classList.remove("active")
+            item.classList.remove("active");
         }
     })
 
@@ -199,17 +194,17 @@ function setActiveFilter (filter) {
 
 
 function setDate () {
-    const options = (weekday: "long", month: "short", day: "numeric");
+    const options = {weekday: "long", month: "short", day: "numeric"};
     const today = new Date();
 
-    dateElement.textContent = today.toLocaleDateString("en-US", options)
+    dateElement.textContent = today.toLocaleDateString("en-US", options);
 
 }
 
 
 window.addEventListener("DOMContentLoaded", () => {
     
-    loadTodos()
+    loadTodos();
     updateItemsCount();
     setDate();
 
